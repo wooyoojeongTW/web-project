@@ -1,29 +1,65 @@
-$(document).ready(function(){
+const form = document.getElementById('form')
+const input = document.getElementById('input')
+const todosUL = document.getElementById('todos')
 
-  //슬라이드 메뉴(확장형)
-  $('nav ul li').mouseenter(function(){
-    $(this).childern('div.submenu').stop().slideDown();
-  })
-  $('nav ul li').mouseleave(function(){
-    $(this).childern('div.submenu').stop().slideUp();
-  })
+const todos = JSON.parse(localStorage.getItem('todos'))
 
-  //이미지 슬라이드(faed)
-  let now_img,next_img;
-  setInterval(function(){
-    now_img = $('figure ul li').eq(0);
-    next_img = $('figure ul li').eq(2);
-    next_img.addClass('active').css({opacity:0}).animate({opacity:1},1000,function(){
-      $('figure ul').append(now_img);
-      now_img.removeClass('active')
-    })
-  },3000);
+if(todos) {
+    todos.forEach(todo => addTodo(todo))
+}
 
-  //popup
-  $('article.notice ul li.pop').click(function(){
-    $('div#popup').fadeIn();
-  })
-  $('div#popup div.close').click(function(){
-    $('div#popup').fadeOut();
-  })
+form.addEventListener('submit', (e) => {
+    e.preventDefault()
+
+    addTodo()
 })
+
+function addTodo(todo) {
+    let todoText = input.value
+
+    if(todo) {
+        todoText = todo.text
+    }
+
+    if(todoText) {
+        const todoEl = document.createElement('li')
+        if(todo && todo.completed) {
+            todoEl.classList.add('completed')
+        }
+
+        todoEl.innerText = todoText
+
+        todoEl.addEventListener('click', () => {
+            todoEl.classList.toggle('completed')
+            updateLS()
+        }) 
+
+        todoEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault()
+
+            todoEl.remove()
+            updateLS()
+        }) 
+
+        todosUL.appendChild(todoEl)
+
+        input.value = ''
+
+        updateLS()
+    }
+}
+
+function updateLS() {
+    todosEl = document.querySelectorAll('.todos lili')
+
+    const todos = []
+
+    todosEl.forEach(todoEl => {
+        todos.push({
+            text: todoEl.innerText,
+            completed: todoEl.classList.contains('completed')
+        })
+    })
+
+    localStorage.setItem('todos', JSON.stringify(todos))
+}
